@@ -12,7 +12,7 @@
 #define STDOUT 1
 #define STDIN 0
 
-int readline(char * buffer, int buffer_size, int fd){
+int readline(char * buffer, int buffer_size, int fd){ // Wrapper for read() which reads to a buffer until line end
 
     int i;
     char c; //One character buffer
@@ -52,7 +52,7 @@ int main(){
 
 		pid = fork();
 
-		if (pid != 0){
+		if (pid != 0){ // pid == 0 in child process only
 			wait(&status);
 		} else {execlp(inbuff, (char*)NULL); exit(0);}
 

@@ -78,8 +78,17 @@ int main(){
             pid = fork(); // the fork allows the shell (parent process) to stay alive while executing selected command
 
             if (pid != 0){ // pid == 0 in child process only
-			wait(&status);
                 wait(&status);
+
+                char* output_buffer[OUTPUT_BUFFER_SIZE];
+
+                if(snprintf(output_buffer, "exit:%d", status) > OUTPUT_BUFFER_SIZE){
+                    write(STDOUT, "error exit code too long", 24);
+                }
+                else {
+                    sprintf(output_buffer, "exit:%d ", status);
+                }
+                write(STDOUT, output_buffer, OUTPUT_BUFFER_SIZE);
             } else {execlp(inbuff, (char*)NULL); exit(0);}
         }
     }
