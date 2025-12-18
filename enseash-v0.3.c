@@ -25,34 +25,34 @@ int readline(char * buffer, int buffer_size, int fd){ // Wrapper for read() whic
 	i = 0;
 	c = 0;
 
-    if(buffer_size < 1){return -1;}
+    if(buffer_size < 1){return EXIT_FAILURE;}
 
     read(fd, &c, 1);
-    if(c == 0){exit(0);}
+    if(c == 0){exit(0);} //exit if <Ctrl+D> in empty prompt
 
     if(c != LINE_FEED) {
 
-			if (buffer_size < 1) {return -1;}
+			if (buffer_size < 1) {return EXIT_FAILURE;}
 			buffer[i] = c;
 
 		    } else {
                 buffer[i] = 0;
-                return 1;
+                return EXIT_SUCCESS;
             }
 
-	while (1) { //While not EOL
+	while (1) {
 
 		if (read(fd, &c, 1) != 0){ //If there is something to read
             i++;
 
             if(c != LINE_FEED) {
 
-			if (i > buffer_size) {return -1;}
+			if (i > buffer_size) {return EXIT_FAILURE;}
 			buffer[i] = c;
 
 		    } else {
                 buffer[i] = 0;
-                return 1;
+                return EXIT_SUCCESS;
             }
 	    }   
     }
@@ -80,7 +80,7 @@ int main(){
             if (pid != 0){ // pid == 0 in child process only
 			wait(&status);
                 wait(&status);
-            } else {execlp(inbuff, (char*)NULL); exit(0);}
+            } else {execlp(inbuff, inbuff, (char*)NULL); exit(0);}
         }
     }
 }

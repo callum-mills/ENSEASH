@@ -11,6 +11,7 @@
 #define MAX_INPUT_LEN 1024
 #define STDOUT 1
 #define STDIN 0
+#define LINE_FEED 10
 
 int readline(char * buffer, int buffer_size, int fd){ // Wrapper for read() which reads to a buffer until line end
 
@@ -20,18 +21,18 @@ int readline(char * buffer, int buffer_size, int fd){ // Wrapper for read() whic
     i = -1;
     c = 0;
 
-    while (1) { //While not EOL
+    while (1) {
 
         if (read(fd, &c, 1) != 0){ //If there is something to read
             i++;
-            if(c != 10) {
+            if(c != LINE_FEED) {
 
-            if (i > buffer_size) {return -1;}
+            if (i > buffer_size) {return EXIT_FAILURE;}
             buffer[i] = c;
 
-            } else {
+            } else { 
                 buffer[i] = 0;
-                return 1;
+                return EXIT_SUCCESS;
             }
         }   
     }
@@ -54,7 +55,7 @@ int main(){
 
 		if (pid != 0){ // pid == 0 in child process only
 			wait(&status);
-		} else {execlp(inbuff, (char*)NULL); exit(0);}
+		} else {execlp(inbuff, inbuff, (char*)NULL); exit(EXIT_SUCCESS);}
 
     }
 }

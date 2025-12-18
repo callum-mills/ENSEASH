@@ -1,9 +1,11 @@
+```
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <time.h>
 
 #define MOTD "Welcome to ENSEASH !\n"
 #define PROMPT "ESH >> "
@@ -17,30 +19,29 @@
 #define END_OF_TRANSMISSION 4
 
 
-int readline(char * buffer, int buffer_size, int fd){ // Wrapper for read() which reads to a buffer until line end
+int readline(char * buffer, int buffer_size, int fd){
 
 	int i;
-	char c; //Single character buffer
-
+	char c; //One character buffer
 	i = 0;
 	c = 0;
 
-    if(buffer_size < 1){return EXIT_FAILURE;}
+    if(buffer_size < 1){return -1;}
 
     read(fd, &c, 1);
-    if(c == 0){exit(0);} //exit if <Ctrl+D> in empty prompt
+    if(c == 0){exit(0);}
 
     if(c != LINE_FEED) {
 
-			if (buffer_size < 1) {return EXIT_FAILURE;}
+			if (buffer_size < 1) {return -1;}
 			buffer[i] = c;
 
 		    } else {
                 buffer[i] = 0;
-                return EXIT_SUCCESS;
+                return 1;
             }
 
-	while (1) {
+	while (1) { //While not EOL
 
 		if (read(fd, &c, 1) != 0){ //If there is something to read
             i++;
@@ -52,7 +53,7 @@ int readline(char * buffer, int buffer_size, int fd){ // Wrapper for read() whic
 
 		    } else {
                 buffer[i] = 0;
-                return EXIT_SUCCESS;
+                return 1;
             }
 	    }   
     }
@@ -75,21 +76,32 @@ int main(){
             return EXIT_SUCCESS;
         } else {
 
-            pid = fork(); // the fork allows the shell (parent process) to stay alive while executing selected command
+            pid = fork();
 
-            if (pid != 0){ // pid == 0 in child process only
+            if (pid != 0){
+
+                struct timespec tp;
+                clock_gettime(_POSIX_MONOTONIC_CLOCK, &tp);
+                long start_ms = tp.tv_nsec/100000;
+
                 wait(&status);
 
-                char output_buffer[OUTPUT_BUFFER_SIZE] = [0];
+                clock_gettime(_POSIX_MONOTONIC_CLOCK, &tp);
+                long stop_ms = tp.tv_nsec/100000;
 
-                if(snprintf(output_buffer, "exit:%d", status) > OUTPUT_BUFFER_SIZE){
-                    write(STDOUT, "error exit code too long", 24);
+                char* output_buffer[OUTPUT_BUFFER_SIZE];
+
+                if(snprintf(output_buffer, "exit:%d|%ldms", status, stop_ms-start_ms) > OUTPUT_BUFFER_SIZE){
+                    write(STDOUT, "error buffer overflow", 20);
                 }
                 else {
-                    sprintf(output_buffer, "exit:%d ", status);
+                    sprintf(output_buffer, "exit:%d|%ldms", status, stop_ms-start_ms);
                 }
+
+
                 write(STDOUT, output_buffer, OUTPUT_BUFFER_SIZE);
-            } else {execlp(inbuff, inbuff, (char*)NULL); exit(0);}
+            } else {execlp(inbuff, (char*)NULL); exit(0);}
         }
     }
 }
+```
