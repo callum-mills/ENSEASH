@@ -39,11 +39,9 @@ Cette fonctionnalité correspond à la **question 1** du sujet.
 
 Le shell fonctionne en boucle infinie :
 
-1. affichage du prompt,
-2. lecture de la commande utilisateur depuis l’entrée standard,
-3. analyse de la commande,
-4. exécution de la commande,
-5. retour au prompt.
+1. lecture de la commande utilisateur depuis l’entrée standard (READ)
+2. analyse de la commande (EVAL)
+3. exécution de la commande et sortie dans stdout (PRINT)
 
 Cela correspond à la **question 2** du sujet.
 
@@ -75,7 +73,7 @@ int parse_arguments(char** command, char* buffer, int buffer_size);
 
 * découpe la ligne de commande à l’aide de `strtok`,
 * sépare la commande et ses arguments,
-* remplit un tableau de chaînes de caractères compatible avec `execvp`.
+* remplit un tableau de chaînes de caractères qui sera ensuite transmis à `execvp`.
 
 Cela permet l’exécution de **commandes avec arguments**, comme demandé à la **question 6**.
 
